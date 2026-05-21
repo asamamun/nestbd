@@ -1,8 +1,9 @@
-# Thikana — Detailed Tech Stack & Package Reference
+# NestBD — Detailed Tech Stack & Package Reference
 
 **Platform:** Airbnb-style short-term rental marketplace for Bangladesh  
-**Backend:** Laravel (PHP) · **Frontend:** React (TypeScript)  
-**Last Updated:** May 2026
+**Backend:** Laravel (PHP) · **Frontend:** React (JavaScript)  
+**Last Updated:** May 2026  
+**Note:** JavaScript (no TypeScript)
 
 ---
 
@@ -27,7 +28,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                        CLIENT LAYER                             │
 │  React SPA (Web)      React Native (iOS/Android)                │
-│  Vite + TypeScript    Expo + TypeScript                         │
+│  Vite + JavaScript    Expo + JavaScript                         │
 └────────────────────────────┬────────────────────────────────────┘
                              │ HTTPS / REST + WebSocket
 ┌────────────────────────────▼────────────────────────────────────┐
@@ -48,7 +49,7 @@
        │                                          │
 ┌──────▼──────────────────────────────────────────▼─────────────┐
 │                     DATA LAYER                                  │
-│   PostgreSQL (primary)  ·  Redis (cache/queue/sessions)        │
+│   MariaDB/MySQL (primary)  ·  Redis (cache/queue/sessions)     │
 │   Meilisearch (search)  ·  S3-compatible storage (media)       │
 └────────────────────────────────────────────────────────────────┘
 ```
@@ -90,9 +91,8 @@
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `doctrine/dbal` | `^3.x` | Advanced schema migrations |
-| `staudenmeir/eloquent-json-relations` | `^1.x` | JSON column relationships (JSONB in PostgreSQL) |
-| `grimzy/laravel-mysql-spatial` | — | Use `mstaack/laravel-postgis` for PostGIS |
-| `mstaack/laravel-postgis` | `^6.x` | PostGIS spatial queries (geo-search for listings) |
+| `staudenmeir/eloquent-json-relations` | `^1.x` | JSON column relationships |
+| `grimzy/laravel-mysql-spatial` | `^6.x` | MySQL spatial queries (geo-search for listings) |
 | `spatie/laravel-sluggable` | `^3.x` | Auto-generate URL slugs for listings |
 
 ### 2.5 Caching & Performance
@@ -255,7 +255,6 @@ PaymentService (interface)
 |---------|---------|---------|
 | `react` | `^19.x` | UI library |
 | `react-dom` | `^19.x` | DOM renderer |
-| `typescript` | `^5.x` | Type safety |
 | `vite` | `^6.x` | Build tool and dev server |
 | `@vitejs/plugin-react` | `^4.x` | React fast refresh |
 
@@ -264,9 +263,8 @@ PaymentService (interface)
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `react-router-dom` | `^7.x` | SPA routing with nested layouts |
-| `@tanstack/router` | `^1.x` | Alternative typed router (recommended for complex apps) |
 
-> **Recommendation:** Use `@tanstack/router` for full TypeScript-typed routes and built-in search param management (crucial for search filters).
+> **Note:** For simpler projects, `react-router-dom` is sufficient. TypeScript-typed routing is not required with JavaScript.
 
 ### 3.3 State Management
 
@@ -299,8 +297,7 @@ PaymentService (interface)
 | Package | Version | Purpose |
 |---------|---------|---------|
 | `react-hook-form` | `^7.x` | Performant form management |
-| `@hookform/resolvers` | `^3.x` | Schema resolvers for React Hook Form |
-| `zod` | `^3.x` | Schema validation (shared with API response typing) |
+| `zod` | `^3.x` | Schema validation (runtime validation for JavaScript) |
 
 ### 3.6 Maps & Geo
 
@@ -390,7 +387,7 @@ PaymentService (interface)
 | `@inertiajs/react` | `^2.x` | Glue layer between Laravel and React — no separate API needed for SSR pages |
 | `inertiajs/inertia-laravel` | `^2.x` | Laravel adapter |
 
-> **Recommendation:** Use Inertia.js for the main site (server-driven SPA with SSR). Use pure REST API + React for the admin panel and mobile. This gives you the best of both worlds: SEO-friendly listing pages + SPA experience.
+> **Recommendation:** Use Inertia.js for the main site (server-driven SPA with SSR). Use pure REST API + React for the admin panel and mobile. This gives you the best of both worlds: SEO-friendly listing pages + SPA experience. JavaScript works seamlessly with Inertia.js without TypeScript.
 
 ### 3.16 Testing (Frontend)
 
@@ -434,15 +431,14 @@ PaymentService (interface)
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **PostgreSQL** | `16.x` | Primary relational database |
-| `postgis` extension | `3.x` | Geo-spatial queries (listing proximity search) |
+| **MariaDB/MySQL** | `8.0.x` | Primary relational database |
 | **Redis** | `7.x` | Cache, sessions, queues, pub/sub for WebSocket |
 | **Meilisearch** | `1.x` | Full-text search (listings in Bangla + English) |
 | **MinIO** / AWS S3 | — | Object storage (photos, ID docs, PDFs) |
 | **AWS CloudFront** / Cloudflare R2 | — | CDN for listing photos |
 
 **Database Drivers (PHP):**
-- `ext-pdo_pgsql` — PostgreSQL PDO driver
+- `ext-pdo_mysql` — MySQL/MariaDB PDO driver
 - `ext-redis` — Redis PHP extension (preferred over predis for Octane)
 
 ---
@@ -486,7 +482,7 @@ PaymentService (interface)
 |-------|----------|
 | Compute | AWS (Singapore ap-southeast-1) or Azure Southeast Asia — lowest latency from BD |
 | CDN | Cloudflare (free tier or Pro) — excellent Bangladesh PoPs |
-| Database | AWS RDS PostgreSQL (Multi-AZ) or DigitalOcean Managed PostgreSQL |
+| Database | AWS RDS MariaDB/MySQL (Multi-AZ) or DigitalOcean Managed MySQL |
 | Object Storage | AWS S3 + CloudFront or Cloudflare R2 |
 | Email | Mailgun / Amazon SES |
 | SMS | SSL Wireless (primary BD gateway) + Infobip (fallback) |
@@ -562,7 +558,7 @@ PaymentService (interface)
 
 | Tool | Purpose |
 |------|---------|
-| `eslint` + `@typescript-eslint` | TypeScript linting |
+| `eslint` | JavaScript linting |
 | `prettier` | Code formatting |
 | `husky` | Git hooks (pre-commit linting) |
 | `lint-staged` | Run linters only on staged files |
@@ -618,7 +614,7 @@ PaymentService (interface)
     "spatie/laravel-health": "^1.30",
     "spatie/laravel-responsecache": "^7.6",
     "spatie/laravel-sluggable": "^3.6",
-    "mstaack/laravel-postgis": "^6.0",
+    "grimzy/laravel-mysql-spatial": "^6.0",
     "lorisleiva/laravel-actions": "^2.8",
     "tightenco/ziggy": "^2.3",
     "propaganistas/laravel-phone": "^5.3",
@@ -658,15 +654,12 @@ PaymentService (interface)
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "^5.7.0",
     "@inertiajs/react": "^2.0.0",
     "@tanstack/react-query": "^5.65.0",
-    "@tanstack/router": "^1.95.0",
     "@tanstack/react-table": "^8.20.0",
     "zustand": "^5.0.0",
     "immer": "^10.1.0",
     "react-hook-form": "^7.54.0",
-    "@hookform/resolvers": "^3.9.0",
     "zod": "^3.24.0",
     "tailwindcss": "^4.0.0",
     "framer-motion": "^11.15.0",
@@ -711,7 +704,6 @@ PaymentService (interface)
     "playwright": "^1.49.0",
     "@playwright/test": "^1.49.0",
     "eslint": "^9.17.0",
-    "@typescript-eslint/eslint-plugin": "^8.18.0",
     "prettier": "^3.4.0",
     "husky": "^9.1.0",
     "lint-staged": "^15.3.0",

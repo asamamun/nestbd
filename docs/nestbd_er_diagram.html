@@ -1,0 +1,546 @@
+
+<style>
+#erd { width: 1000%; overflow-x: auto; }
+#erd svg { min-width: 900px; }
+#erd svg.erDiagram .row-rect-odd path,
+#erd svg.erDiagram .row-rect-odd rect,
+#erd svg.erDiagram .row-rect-even path,
+#erd svg.erDiagram .row-rect-even rect { stroke: none !important; }
+</style>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '12px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#2e2c28' : '#f5f3ee',
+    primaryBorderColor: dark ? '#5f5e5a' : '#b4b2a9',
+    primaryTextColor: dark ? '#c2c0b6' : '#3d3d3a',
+  },
+});
+
+const diagram = `erDiagram
+  divisions {
+    SMALLINT id PK
+    VARCHAR name_en
+    VARCHAR name_bn
+  }
+  districts {
+    SMALLINT id PK
+    SMALLINT division_id FK
+    VARCHAR name_en
+    VARCHAR name_bn
+  }
+  upazilas {
+    SMALLINT id PK
+    SMALLINT district_id FK
+    VARCHAR name_en
+    VARCHAR name_bn
+  }
+  thanas {
+    SMALLINT id PK
+    SMALLINT upazila_id FK
+    VARCHAR name_en
+    VARCHAR name_bn
+  }
+  areas {
+    INT id PK
+    SMALLINT thana_id FK
+    SMALLINT district_id FK
+    VARCHAR name_en
+    VARCHAR area_type
+    TINYINT is_tourist_area
+  }
+  users {
+    CHAR id PK
+    ENUM role
+    ENUM status
+    VARCHAR first_name
+    VARCHAR email
+    VARCHAR mobile_number
+    ENUM preferred_language
+    TINYINT email_verified
+    TINYINT mobile_verified
+    CHAR referred_by_user_id FK
+    SMALLINT thana_id FK
+    SMALLINT district_id FK
+    SMALLINT division_id FK
+    TIMESTAMP created_at
+    TIMESTAMP deleted_at
+  }
+  user_oauth_accounts {
+    BIGINT id PK
+    CHAR user_id FK
+    VARCHAR provider
+    VARCHAR provider_uid
+    TIMESTAMP token_expires
+  }
+  user_id_verifications {
+    BIGINT id PK
+    CHAR user_id FK
+    ENUM doc_type
+    VARCHAR doc_number
+    ENUM status
+    CHAR reviewer_admin_id FK
+  }
+  user_emergency_contacts {
+    BIGINT id PK
+    CHAR user_id FK
+    VARCHAR name
+    VARCHAR mobile_number
+  }
+  admin_roles {
+    SMALLINT id PK
+    VARCHAR name
+  }
+  admin_permissions {
+    SMALLINT id PK
+    VARCHAR code
+  }
+  admin_role_permissions {
+    SMALLINT role_id FK
+    SMALLINT permission_id FK
+  }
+  admin_users {
+    CHAR user_id PK
+    SMALLINT admin_role_id FK
+    CHAR assigned_by FK
+  }
+  admin_audit_logs {
+    BIGINT id PK
+    CHAR admin_id FK
+    VARCHAR action
+    VARCHAR entity_type
+    JSON old_values
+    JSON new_values
+  }
+  amenities {
+    SMALLINT id PK
+    VARCHAR category
+    VARCHAR name_en
+    VARCHAR name_bn
+    TINYINT is_highlight
+  }
+  listings {
+    CHAR id PK
+    CHAR host_id FK
+    ENUM status
+    ENUM property_type
+    VARCHAR title_en
+    SMALLINT division_id FK
+    SMALLINT district_id FK
+    SMALLINT upazila_id FK
+    SMALLINT thana_id FK
+    INT area_id FK
+    DECIMAL price_per_night
+    TINYINT instant_book_enabled
+    DECIMAL avg_rating
+    TIMESTAMP deleted_at
+  }
+  listing_amenities {
+    CHAR listing_id FK
+    SMALLINT amenity_id FK
+    TEXT notes
+  }
+  listing_beds {
+    BIGINT id PK
+    CHAR listing_id FK
+    SMALLINT room_number
+    VARCHAR bed_type
+    SMALLINT quantity
+  }
+  listing_photos {
+    BIGINT id PK
+    CHAR listing_id FK
+    TEXT url
+    TINYINT is_cover
+    SMALLINT sort_order
+  }
+  listing_house_rules {
+    BIGINT id PK
+    CHAR listing_id FK
+    VARCHAR rule_key
+    TEXT rule_text_en
+  }
+  listing_price_overrides {
+    BIGINT id PK
+    CHAR listing_id FK
+    DATE start_date
+    DATE end_date
+    DECIMAL price_per_night
+  }
+  listing_ical_syncs {
+    BIGINT id PK
+    CHAR listing_id FK
+    VARCHAR source_name
+    TEXT ical_url
+    VARCHAR sync_status
+  }
+  listing_cohosts {
+    BIGINT id PK
+    CHAR listing_id FK
+    CHAR host_id FK
+    CHAR cohost_id FK
+    ENUM permission
+  }
+  listing_availability {
+    BIGINT id PK
+    CHAR listing_id FK
+    DATE date
+    ENUM availability
+    DECIMAL price_override
+  }
+  bookings {
+    CHAR id PK
+    VARCHAR booking_ref
+    CHAR listing_id FK
+    CHAR guest_id FK
+    CHAR host_id FK
+    ENUM status
+    DATE check_in_date
+    DATE checkout_date
+    DECIMAL total_guest_pays
+    DECIMAL host_payout_amount
+    ENUM cancellation_policy
+  }
+  booking_modifications {
+    BIGINT id PK
+    CHAR booking_id FK
+    CHAR requested_by FK
+    DATE new_check_in
+    DATE new_checkout
+    VARCHAR status
+  }
+  payments {
+    CHAR id PK
+    CHAR booking_id FK
+    CHAR payer_id FK
+    ENUM payment_method
+    ENUM status
+    DECIMAL amount
+    INT coupon_id FK
+    VARCHAR gateway_name
+  }
+  refunds {
+    CHAR id PK
+    CHAR payment_id FK
+    CHAR booking_id FK
+    CHAR initiated_by FK
+    DECIMAL amount
+    ENUM status
+  }
+  host_payout_accounts {
+    BIGINT id PK
+    CHAR host_id FK
+    ENUM method
+    VARCHAR account_name
+    TINYINT is_primary
+    TINYINT is_verified
+  }
+  payouts {
+    CHAR id PK
+    CHAR host_id FK
+    CHAR booking_id FK
+    BIGINT payout_account_id FK
+    ENUM status
+    DECIMAL gross_amount
+    DECIMAL net_amount
+  }
+  tax_certificates {
+    BIGINT id PK
+    CHAR host_id FK
+    VARCHAR fiscal_year
+    DECIMAL total_earnings
+    DECIMAL total_tds_deducted
+  }
+  platform_fee_configs {
+    BIGINT id PK
+    VARCHAR name
+    DECIMAL guest_service_fee_pct
+    DECIMAL host_service_fee_pct
+    DECIMAL vat_on_service_fee_pct
+    DATE applicable_from
+    TINYINT is_active
+  }
+  coupons {
+    INT id PK
+    VARCHAR code
+    ENUM discount_type
+    DECIMAL discount_value
+    TINYINT is_active
+    CHAR created_by FK
+  }
+  coupon_usages {
+    BIGINT id PK
+    INT coupon_id FK
+    CHAR user_id FK
+    CHAR booking_id FK
+    DECIMAL discount_applied
+  }
+  referrals {
+    BIGINT id PK
+    CHAR referrer_id FK
+    CHAR referee_id FK
+    VARCHAR status
+    CHAR qualifying_booking_id FK
+  }
+  user_credits {
+    BIGINT id PK
+    CHAR user_id FK
+    DECIMAL amount
+    DECIMAL balance_after
+    TEXT reason
+    CHAR created_by FK
+  }
+  reviews {
+    CHAR id PK
+    CHAR booking_id FK
+    ENUM review_type
+    CHAR reviewer_id FK
+    CHAR reviewee_id FK
+    CHAR listing_id FK
+    DECIMAL overall_rating
+    TINYINT is_published
+    TINYINT is_removed
+  }
+  review_flags {
+    BIGINT id PK
+    CHAR review_id FK
+    CHAR flagged_by FK
+    TEXT reason
+  }
+  conversations {
+    CHAR id PK
+    CHAR booking_id FK
+    CHAR listing_id FK
+    CHAR host_id FK
+    CHAR guest_id FK
+    TINYINT is_archived
+  }
+  messages {
+    BIGINT id PK
+    CHAR conversation_id FK
+    CHAR sender_id FK
+    TEXT body_original
+    TINYINT is_read
+    TINYINT is_flagged
+  }
+  notification_templates {
+    INT id PK
+    VARCHAR event_key
+    ENUM channel
+    TEXT body_template
+    TINYINT is_active
+  }
+  platform_notifications {
+    BIGINT id PK
+    CHAR user_id FK
+    INT template_id FK
+    ENUM channel
+    ENUM status
+    TEXT body
+  }
+  wishlists {
+    INT id PK
+    CHAR user_id FK
+    VARCHAR name
+    TINYINT is_public
+  }
+  wishlist_listings {
+    INT wishlist_id FK
+    CHAR listing_id FK
+    TIMESTAMP added_at
+  }
+  disputes {
+    INT id PK
+    CHAR booking_id FK
+    ENUM raised_by
+    CHAR raised_by_user_id FK
+    ENUM status
+    ENUM ruling
+    CHAR assigned_admin_id FK
+  }
+  dispute_evidence {
+    BIGINT id PK
+    INT dispute_id FK
+    CHAR submitted_by FK
+    TEXT file_url
+  }
+  dispute_messages {
+    BIGINT id PK
+    INT dispute_id FK
+    CHAR sender_id FK
+    TEXT message
+    TINYINT is_internal
+  }
+  listing_reports {
+    BIGINT id PK
+    CHAR listing_id FK
+    CHAR reporter_id FK
+    VARCHAR category
+    VARCHAR status
+    CHAR reviewed_by FK
+  }
+  superhost_assessments {
+    BIGINT id PK
+    CHAR host_id FK
+    VARCHAR assessment_period
+    DECIMAL avg_rating
+    TINYINT is_superhost_awarded
+  }
+  analytics_events {
+    BIGINT id PK
+    VARCHAR event_type
+    CHAR user_id FK
+    CHAR listing_id FK
+    CHAR booking_id FK
+    JSON properties
+  }
+  system_audit_logs {
+    BIGINT id PK
+    VARCHAR table_name
+    TEXT record_id
+    CHAR operation
+    JSON old_data
+    JSON new_data
+  }
+  feature_flags {
+    INT id PK
+    VARCHAR flag_key
+    TINYINT is_enabled
+    TINYINT rollout_pct
+    CHAR updated_by FK
+  }
+  system_configs {
+    VARCHAR key PK
+    TEXT value
+    VARCHAR value_type
+    CHAR updated_by FK
+  }
+
+  divisions ||--o{ districts : "has"
+  divisions ||--o{ users : "address"
+  divisions ||--o{ listings : "in"
+  districts ||--o{ upazilas : "has"
+  districts ||--o{ areas : "has"
+  districts ||--o{ users : "address"
+  districts ||--o{ listings : "in"
+  upazilas ||--o{ thanas : "has"
+  upazilas ||--o{ listings : "in"
+  thanas ||--o{ areas : "has"
+  thanas ||--o{ users : "address"
+  thanas ||--o{ listings : "in"
+  areas ||--o{ listings : "in"
+
+  users ||--o{ user_oauth_accounts : "has"
+  users ||--o{ user_id_verifications : "submits"
+  users ||--o{ user_id_verifications : "reviews"
+  users ||--o{ user_emergency_contacts : "has"
+  users ||--o| admin_users : "is"
+  users ||--o{ listings : "hosts"
+  users ||--o{ bookings : "guest"
+  users ||--o{ bookings : "host"
+  users ||--o{ payments : "pays"
+  users ||--o{ host_payout_accounts : "owns"
+  users ||--o{ payouts : "receives"
+  users ||--o{ reviews : "writes"
+  users ||--o{ reviews : "receives"
+  users ||--o{ conversations : "guest"
+  users ||--o{ conversations : "host"
+  users ||--o{ messages : "sends"
+  users ||--o{ wishlists : "owns"
+  users ||--o{ platform_notifications : "gets"
+  users ||--o{ disputes : "raises"
+  users ||--o{ user_credits : "holds"
+  users ||--o{ referrals : "refers"
+  users ||--o{ referrals : "referred"
+  users ||--o{ superhost_assessments : "assessed"
+  users }o--o| users : "referred by"
+
+  admin_roles ||--o{ admin_role_permissions : "has"
+  admin_permissions ||--o{ admin_role_permissions : "in"
+  admin_roles ||--o{ admin_users : "assigned"
+  users ||--o{ admin_audit_logs : "logs"
+
+  listings ||--o{ listing_beds : "has"
+  listings ||--o{ listing_photos : "has"
+  listings ||--o{ listing_house_rules : "has"
+  listings ||--o{ listing_price_overrides : "has"
+  listings ||--o{ listing_ical_syncs : "has"
+  listings ||--o{ listing_cohosts : "has"
+  listings ||--o{ listing_availability : "has"
+  listings ||--o{ listing_amenities : "has"
+  amenities ||--o{ listing_amenities : "in"
+  listings ||--o{ bookings : "booked"
+  listings ||--o{ reviews : "reviewed"
+  listings ||--o{ listing_reports : "reported"
+  listings ||--o{ conversations : "about"
+  listings ||--o{ wishlist_listings : "in"
+  listings ||--o{ analytics_events : "tracked"
+
+  bookings ||--o{ payments : "paid by"
+  bookings ||--o{ refunds : "refunded"
+  bookings ||--o{ reviews : "has"
+  bookings ||--o| disputes : "has"
+  bookings ||--o{ booking_modifications : "modified"
+  bookings ||--o| conversations : "has"
+  bookings ||--o| payouts : "yields"
+  bookings ||--o{ coupon_usages : "uses"
+  bookings ||--o{ analytics_events : "tracked"
+
+  payments ||--o{ refunds : "refunded"
+  coupons ||--o{ coupon_usages : "used in"
+  coupons ||--o{ payments : "applied to"
+  host_payout_accounts ||--o{ payouts : "to"
+  users ||--o{ tax_certificates : "has"
+
+  disputes ||--o{ dispute_evidence : "has"
+  disputes ||--o{ dispute_messages : "has"
+
+  conversations ||--o{ messages : "contains"
+
+  notification_templates ||--o{ platform_notifications : "generates"
+
+  wishlists ||--o{ wishlist_listings : "contains"
+
+  reviews ||--o{ review_flags : "flagged"
+
+  referrals }o--o| bookings : "qualifying"
+`;
+
+  const { svg } = await mermaid.render('erd-svg', diagram);
+  document.getElementById('erd').innerHTML = svg;
+
+  document.querySelectorAll('#erd svg.erDiagram .node').forEach(node => {
+    const firstPath = node.querySelector('path[d]');
+    if (!firstPath) return;
+    const d = firstPath.getAttribute('d');
+    const nums = d.match(/-?[\d.]+/g)?.map(Number);
+    if (!nums || nums.length < 8) return;
+    const xs = [nums[0], nums[2], nums[4], nums[6]];
+    const ys = [nums[1], nums[3], nums[5], nums[7]];
+    const x = Math.min(...xs), y = Math.min(...ys);
+    const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', y);
+    rect.setAttribute('width', w); rect.setAttribute('height', h);
+    rect.setAttribute('rx', '8');
+    for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+      if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+    }
+    firstPath.replaceWith(rect);
+  });
+
+  document.querySelectorAll('#erd svg.erDiagram .row-rect-odd path, #erd svg.erDiagram .row-rect-even path').forEach(p => {
+    p.setAttribute('stroke', 'none');
+  });
+</script>
