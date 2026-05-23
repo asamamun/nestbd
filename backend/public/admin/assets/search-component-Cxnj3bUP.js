@@ -1,0 +1,1 @@
+var e=2,t=200;function n({getResults:n,minLength:r=e,delayMs:i=t}={}){return()=>({query:``,results:[],isLoading:!1,async search(){if(this.query.length<r){this.results=[];return}this.isLoading=!0;try{i>0&&await new Promise(e=>setTimeout(e,i));let e=n?await n(this.query):[];this.results=Array.isArray(e)?e:[]}finally{this.isLoading=!1}}})}export{n as t};
