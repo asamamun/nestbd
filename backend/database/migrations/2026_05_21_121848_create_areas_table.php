@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('areas', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedInteger('id')->primary()->autoIncrement();
             /* thana_id        SMALLINT UNSIGNED NULL,
     district_id     SMALLINT UNSIGNED NULL,
     name_en         VARCHAR(200) NOT NULL,
@@ -21,8 +21,8 @@ return new class extends Migration
     is_tourist_area TINYINT(1) NOT NULL DEFAULT 0,
     latitude        DECIMAL(10,8) NULL,
     longitude       DECIMAL(11,8) NULL,*/
-            $table->unsignedBigInteger('thana_id')->nullable();
-            $table->unsignedBigInteger('district_id')->nullable();
+            $table->unsignedSmallInteger('thana_id')->nullable();
+            $table->unsignedSmallInteger('district_id')->nullable();
             $table->string('name_en');
             $table->string('name_bn');
             $table->string('area_type')->nullable();

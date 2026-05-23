@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->char('id', 36)->primary();
 /* 
 role                    ENUM('guest','host','both','admin') NOT NULL DEFAULT 'guest',
     status                  ENUM('pending_verification','active','suspended','banned','deactivated','deleted') NOT NULL DEFAULT 'pending_verification',
@@ -105,13 +105,13 @@ role                    ENUM('guest','host','both','admin') NOT NULL DEFAULT 'gu
             //address_line2
             $table->text('address_line2')->nullable();
             //thana_id
-            $table->unsignedBigInteger('thana_id')->nullable();
+            $table->unsignedSmallInteger('thana_id')->nullable();
             $table->foreign('thana_id')->references('id')->on('thanas')->onDelete('cascade');
             //district_id
-            $table->unsignedBigInteger('district_id')->nullable();
+            $table->unsignedSmallInteger('district_id')->nullable();
             $table->foreign('district_id')->references('id')->on('districts')->onDelete('cascade');
             //division_id
-            $table->unsignedBigInteger('division_id')->nullable();
+            $table->unsignedSmallInteger('division_id')->nullable();
             $table->foreign('division_id')->references('id')->on('divisions')->onDelete('cascade');
             //postal_code
             $table->string('postal_code')->nullable();

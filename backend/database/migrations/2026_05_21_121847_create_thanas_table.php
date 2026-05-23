@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('thanas', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedSmallInteger('id')->primary()->autoIncrement();
             //upazila_id
-            $table->unsignedBigInteger('upazila_id');
+            $table->unsignedSmallInteger('upazila_id');
             $table->string('name_en');
             $table->string('name_bn');
             $table->foreign('upazila_id')->references('id')->on('upazilas')->onDelete('cascade');

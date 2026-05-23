@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('divisions', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedSmallInteger('id')->primary()->autoIncrement();
             //name_en, name_bn
             $table->string('name_en');
             $table->string('name_bn');

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Division;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,6 +13,18 @@ class DivisionSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        //bangladesh all division list
+        foreach ([
+            'Dhaka',
+            'Rajshahi',
+            'Khulna',
+            'Barisal',
+            'Chittagong',
+            'Sylhet',
+            'Rangpur',
+            'Mymensingh',
+        ] as $name) {
+            Division::create(['name_en' => $name, 'name_bn' => $name]);
+        }
     }
 }

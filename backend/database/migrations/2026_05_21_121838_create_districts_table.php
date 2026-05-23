@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('districts', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedSmallInteger('id')->primary()->autoIncrement();
             //division id
-            $table->unsignedBigInteger('division_id');
+            $table->unsignedSmallInteger('division_id');
             $table->string('name_en');
             $table->string('name_bn');
             $table->foreign('division_id')->references('id')->on('divisions')->onDelete('cascade');
